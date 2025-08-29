@@ -24,60 +24,76 @@ def display_game_state(mistakes: int, secret_word: str, guessed_letters: list):
         secret_word (str): The secret word the player is trying to guess.
         guessed_letters (list): List of letters guessed so far.
     """
+    print("\n" + "="*30)
     print(STAGES[mistakes])
-
-    display_word = ""
-    for letter in secret_word:
-        display_word += letter + " " if letter in guessed_letters else "_ "
+    display_word = " ".join([letter if letter in guessed_letters else "_" for letter in secret_word])
     print("Word:", display_word)
-    print("\n")
+    print("="*30 + "\n")
+
+
+def get_valid_guess(guessed_letters: list) -> str:
+    """
+    Prompt the player for a valid single alphabetical letter that
+    has not been guessed before.
+
+    Args:
+        guessed_letters (list): Letters already guessed.
+
+    Returns:
+        str: Validated letter input by the player.
+    """
+    while True:
+        guess = input("Guess a letter: ").lower()
+        if not guess.isalpha() or len(guess) != 1:
+            print("⚠️ Invalid input. Please enter a single letter.")
+        elif guess in guessed_letters:
+            print("⚠️ You already guessed that letter.")
+        else:
+            return guess
 
 
 def play_game():
     """
     Main function to run the Snowman Meltdown game.
-    Handles player input, updates game state, and checks win/loss.
+    Handles game loop, player input, updating game state, and replay option.
     """
-    secret_word = get_random_word()
-    guessed_letters = []
-    mistakes = 0
-    max_mistakes = len(STAGES) - 1
+    while True:
+        secret_word = get_random_word()
+        guessed_letters = []
+        mistakes = 0
+        max_mistakes = len(STAGES) - 1
 
-    print("❄️ Welcome to Snowman Meltdown! ❄️")
+        print("❄️ Welcome to Snowman Meltdown! ❄️")
 
-    while mistakes < max_mistakes:
-        display_game_state(mistakes, secret_word, guessed_letters)
+        while mistakes < max_mistakes:
+            display_game_state(mistakes, secret_word, guessed_letters)
 
-        # Check for victory
-        if all(letter in guessed_letters for letter in secret_word):
-            print("🎉 Congratulations! You guessed the word and saved the snowman!")
-            break
+            # Check for victory
+            if all(letter in guessed_letters for letter in secret_word):
+                print("🎉 Congratulations! You guessed the word and saved the snowman!")
+                break
 
-        # Prompt for guess
-        guess = input("Guess a letter: ").lower()
+            # Get validated guess
+            guess = get_valid_guess(guessed_letters)
 
-        # Input validation
-        if not guess.isalpha() or len(guess) != 1:
-            print("⚠️ Invalid input. Enter a single letter.")
-            continue
+            # Update game state
+            if guess in secret_word:
+                guessed_letters.append(guess)
+                print("✅ Correct guess!")
+            else:
+                mistakes += 1
+                print("❌ Wrong guess. The snowman is melting!")
 
-        if guess in guessed_letters:
-            print("⚠️ You already guessed that letter.")
-            continue
-
-        # Update guessed letters and mistakes
-        if guess in secret_word:
-            guessed_letters.append(guess)
-            print("✅ Correct guess!")
         else:
-            mistakes += 1
-            print("❌ Wrong guess. The snowman is melting!")
+            display_game_state(mistakes, secret_word, guessed_letters)
+            print("💀 Game over! The snowman melted!")
+            print(f"The word was: {secret_word}")
 
-    else:
-        # Player lost
-        display_game_state(mistakes, secret_word, guessed_letters)
-        print("💀 Game over! The snowman melted!")
-        print(f"The word was: {secret_word}")
+        # Replay option
+        replay = input("\nDo you want to play again? (y/n): ").lower()
+        if replay != 'y':
+            print("Thanks for playing Snowman Meltdown! Goodbye!")
+            break
 
 
 if __name__ == "__main__":
