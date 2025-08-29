@@ -9,13 +9,45 @@ def get_random_word():
 
 def play_game():
     secret_word = get_random_word()
-    print("Welcome to Snowman Meltdown!")
-    print("Secret word selected: " + secret_word)  # for testing, later remove this line
+    guessed_letters = []
+    max_attempts = 6
+    attempts_left = max_attempts
 
-    # TODO: Build your game loop here.
-    # For now, simply prompt the user once:
-    guess = input("Guess a letter: ").lower()
-    print("You guessed:", guess)
-    
+    print("Welcome to Snowman Meltdown!")
+
+    # Game loop
+    while attempts_left > 0:
+        # Show progress (e.g., _ y t h o n)
+        display_word = " ".join([letter if letter in guessed_letters else "_" for letter in secret_word])
+        print("\nWord:", display_word)
+        print("Attempts left:", attempts_left)
+
+        # Check victory
+        if all(letter in guessed_letters for letter in secret_word):
+            print("🎉 You guessed the word! The snowman is safe!")
+            break
+
+        # Get input
+        guess = input("Guess a letter: ").lower()
+
+        if not guess.isalpha() or len(guess) != 1:
+            print("⚠️ Please enter only a single letter.")
+            continue
+
+        if guess in guessed_letters:
+            print("⚠️ You already guessed that letter.")
+            continue
+
+        # Check guess
+        if guess in secret_word:
+            guessed_letters.append(guess)
+            print("✅ Correct!")
+        else:
+            attempts_left -= 1
+            print("❌ Wrong guess!")
+
+    else:
+        print("\n💀 No attempts left. The word was:", secret_word)
+
 if __name__ == "__main__":
     play_game()
